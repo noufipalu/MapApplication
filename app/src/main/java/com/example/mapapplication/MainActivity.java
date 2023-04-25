@@ -1,5 +1,6 @@
 package com.example.mapapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -29,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
     Button show, listen, current;
     TextView location;
-    ListView list;
 
     LocationManager locationManager;
     String lat, lon;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         listen = findViewById(R.id.btnLocLisner);
         current = findViewById(R.id.btn_getCurLoc);
         location = findViewById(R.id.tv_location);
-        list = findViewById(R.id.listview);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
             provider += prov + "\n";
         }
         Toast.makeText(this, provider, Toast.LENGTH_SHORT).show();
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.activity_main, providers);
-        list.setAdapter(adapter);
-
         show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +73,29 @@ public class MainActivity extends AppCompatActivity {
                 else {
                  getLocation();
                 }
+            }
+        });
+
+        listen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enableLocationListner();
+            }
+        });
+    }
+
+    private void enableLocationListner() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        }
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                Toast.makeText(MainActivity.this, "Latitude: " + location.getLatitude() + "\n" + "Longitude: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
             }
         });
     }
